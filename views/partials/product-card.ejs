@@ -1,0 +1,49 @@
+<div class="product-card h-100">
+  <div class="product-card-img-wrap">
+    <a href="/product/<%= p.slug %>">
+      <img src="<%= p.images && p.images[0] ? p.images[0] : '/images/placeholder.png' %>" alt="<%= p.name %>" loading="lazy">
+    </a>
+
+    <!-- Discount Badge -->
+    <% if (p.salePrice && p.price > p.salePrice) { %>
+      <% const pct = Math.round(((p.price - p.salePrice) / p.price) * 100); %>
+      <span class="product-badge-sale">-<%= pct %>% OFF</span>
+    <% } %>
+
+    <!-- Stock Badge -->
+    <% if (p.stock <= 10 && p.stock > 0) { %>
+      <span class="product-badge-stock">Only <%= p.stock %> Left</span>
+    <% } else if (p.stock <= 0) { %>
+      <span class="product-badge-stock bg-secondary">Sold Out</span>
+    <% } %>
+  </div>
+
+  <div class="product-card-body">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <span class="text-uppercase text-muted" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+        <%= p.category && p.category.name ? p.category.name : 'Ready-to-Wear' %>
+      </span>
+      <div class="text-warning small" style="font-size: 0.75rem;">
+        <i class="bi bi-star-fill"></i> 4.9
+      </div>
+    </div>
+
+    <h6 class="mb-2">
+      <a href="/product/<%= p.slug %>" class="product-card-title"><%= p.name %></a>
+    </h6>
+
+    <div class="mt-auto d-flex align-items-center justify-content-between pt-1">
+      <div>
+        <% if (p.salePrice) { %>
+          <span class="product-price">₹<%= p.salePrice.toLocaleString('en-IN') %></span>
+          <span class="product-original-price">₹<%= p.price.toLocaleString('en-IN') %></span>
+        <% } else { %>
+          <span class="product-price">₹<%= p.price.toLocaleString('en-IN') %></span>
+        <% } %>
+      </div>
+      <a href="/product/<%= p.slug %>" class="btn btn-sm btn-outline-dark rounded-circle p-2" title="View Details">
+        <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</div>

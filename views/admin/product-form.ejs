@@ -1,0 +1,213 @@
+<div class="container-fluid p-0">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h4 class="fw-bold mb-1"><%= product ? 'Edit Product' : 'Create New Product' %></h4>
+      <p class="text-muted small mb-0"><%= product ? `Editing: ${product.name}` : 'Fill in the information to publish a new piece to Aurelle catalogue' %></p>
+    </div>
+    <a href="/admin/products" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+      <i class="bi bi-arrow-left me-1"></i> Back to Catalog
+    </a>
+  </div>
+
+  <form action="<%= product ? '/admin/products/' + product._id : '/admin/products' %>" method="POST" enctype="multipart/form-data">
+    <div class="row g-4">
+      <!-- Left Column: Core Info & Media -->
+      <div class="col-12 col-lg-8">
+        <!-- Basic Information -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0 pt-3 pb-0">
+            <h6 class="fw-bold mb-0 text-dark">Basic Information</h6>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Product Title <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control" placeholder="e.g. Elena Wrap Midi Dress" value="<%= product ? product.name : '' %>" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
+              <textarea name="description" class="form-control" rows="4" placeholder="Detail the cut, fabric sensation, draping, and styling suggestions..." required><%= product ? product.description : '' %></textarea>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                <select name="category" class="form-select" required>
+                  <% categories.forEach(cat => { %>
+                    <option value="<%= cat._id %>" <%= product && String(product.category ? (product.category._id || product.category) : '') === String(cat._id) ? 'selected' : '' %>>
+                      <%= cat.name %>
+                    </option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Merchandising Status</label>
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" name="featured" id="featuredCheck" <%= product && product.featured ? 'checked' : '' %>>
+                  <label class="form-check-label" for="featuredCheck">Feature on Homepage / Trending</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Images & Media -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0 pt-3 pb-0">
+            <h6 class="fw-bold mb-0 text-dark">Media & Imagery</h6>
+          </div>
+          <div class="card-body">
+            <% if (product && product.images && product.images.length) { %>
+              <label class="form-label fw-semibold mb-2">Current Images</label>
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <% product.images.forEach(img => { %>
+                  <div class="position-relative">
+                    <img src="<%= img %>" class="rounded border shadow-sm" style="width: 80px; height: 80px; object-fit: cover;" alt="Image">
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Upload Image Files (Up to 5)</label>
+              <input type="file" name="images" class="form-control" multiple accept="image/*">
+              <div class="form-text">Supports JPG, PNG, WEBP. If uploading files, these will replace the product's primary images.</div>
+            </div>
+
+            <div>
+              <label class="form-label fw-semibold">Or Image URLs (Comma-separated)</label>
+              <input type="text" name="imageUrl" class="form-control" placeholder="https://images.unsplash.com/..., https://..." value="<%= product && product.images ? product.images.join(', ') : '' %>">
+              <div class="form-text">Quickly link high-resolution image URLs without uploading files.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Technical Specifications & Highlights -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0 pt-3 pb-0">
+            <h6 class="fw-bold mb-0 text-dark">Key Highlights & Garment Specs (Optional)</h6>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6 col-lg-3">
+                <label class="form-label small text-muted">Fabric</label>
+                <input type="text" name="fabric" class="form-control form-control-sm" placeholder="e.g. Mulberry Silk" value="<%= product && product.specs ? product.specs.fabric || '' : '' %>">
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <label class="form-label small text-muted">Fit Silhouette</label>
+                <input type="text" name="fit" class="form-control form-control-sm" placeholder="e.g. Tailored A-Line" value="<%= product && product.specs ? product.specs.fit || '' : '' %>">
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <label class="form-label small text-muted">Occasion</label>
+                <input type="text" name="occasion" class="form-control form-control-sm" placeholder="e.g. Work & Evening" value="<%= product && product.specs ? product.specs.occasion || '' : '' %>">
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <label class="form-label small text-muted">Wash Care</label>
+                <input type="text" name="washCare" class="form-control form-control-sm" placeholder="e.g. Dry Clean Only" value="<%= product && product.specs ? product.specs.washCare || '' : '' %>">
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <label class="form-label small text-muted">Neckline</label>
+                <input type="text" name="neck" class="form-control form-control-sm" placeholder="e.g. Surplice V-Neck" value="<%= product && product.specs ? product.specs.neck || '' : '' %>">
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <label class="form-label small text-muted">Sleeve Length</label>
+                <input type="text" name="sleeveLength" class="form-control form-control-sm" placeholder="e.g. Three-Quarter" value="<%= product && product.specs ? product.specs.sleeveLength || '' : '' %>">
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <label class="form-label small text-muted">Sleeve Type</label>
+                <input type="text" name="sleeveType" class="form-control form-control-sm" placeholder="e.g. Fitted Cuff" value="<%= product && product.specs ? product.specs.sleeveType || '' : '' %>">
+              </div>
+              <div class="col-md-6 col-lg-3">
+                <label class="form-label small text-muted">Pattern</label>
+                <input type="text" name="pattern" class="form-control form-control-sm" placeholder="e.g. Solid Textured" value="<%= product && product.specs ? product.specs.pattern || '' : '' %>">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Size Chart Matrix -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0 pt-3 pb-0">
+            <h6 class="fw-bold mb-0 text-dark">Garment Measurement Chart (Inches)</h6>
+          </div>
+          <div class="card-body">
+            <p class="form-text mt-0">One row per size: <code>Size, Bust, Waist, Hip</code>. Example: <code>S, 34, 28, 37.5</code></p>
+            <textarea name="sizeChartRaw" class="form-control font-monospace" rows="4" placeholder="XS, 32, 26, 35.5&#10;S, 34, 28, 37.5&#10;M, 36, 30, 39.5&#10;L, 38, 32, 42&#10;XL, 40, 34, 44"><%= product && product.sizeChart && product.sizeChart.length ? product.sizeChart.map(r => `${r.size}, ${r.bust}, ${r.waist}, ${r.hip}`).join('\n') : '' %></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Pricing, Inventory & Variants -->
+      <div class="col-12 col-lg-4">
+        <!-- Pricing Card -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0 pt-3 pb-0">
+            <h6 class="fw-bold mb-0 text-dark">Pricing & Economics</h6>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Retail Price (₹) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text bg-light">₹</span>
+                <input type="number" name="price" class="form-control" placeholder="3299" value="<%= product ? product.price : '' %>" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Promotional / Sale Price (₹)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light">₹</span>
+                <input type="number" name="salePrice" class="form-control" placeholder="2599" value="<%= product && product.salePrice ? product.salePrice : '' %>">
+              </div>
+              <div class="form-text">Leave blank if no promotional discount is active.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inventory & Stock Card -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0 pt-3 pb-0">
+            <h6 class="fw-bold mb-0 text-dark">Inventory & Stock</h6>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Quantity In Stock</label>
+              <input type="number" name="stock" class="form-control" placeholder="50" value="<%= product ? product.stock : 50 %>" required>
+              <div class="form-text">Quantities below 10 trigger low-stock alerts.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Variants Card -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0 pt-3 pb-0">
+            <h6 class="fw-bold mb-0 text-dark">Sizes & Colors</h6>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Available Sizes</label>
+              <input type="text" name="sizes" class="form-control" placeholder="XS, S, M, L, XL" value="<%= product && product.sizes ? product.sizes.join(', ') : 'XS, S, M, L, XL' %>">
+              <div class="form-text">Comma-separated list of sizes.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Available Colors</label>
+              <input type="text" name="colors" class="form-control" placeholder="Black, Burgundy, Olive" value="<%= product && product.colors ? product.colors.join(', ') : 'Midnight Black' %>">
+              <div class="form-text">Comma-separated color names.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Button Card -->
+        <div class="card border-0 shadow-sm bg-light">
+          <div class="card-body">
+            <button type="submit" class="btn btn-primary-gold btn-lg w-100 fw-bold">
+              <i class="bi bi-cloud-arrow-up-fill me-1"></i> <%= product ? 'Update Product' : 'Publish Product' %>
+            </button>
+            <a href="/admin/products" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

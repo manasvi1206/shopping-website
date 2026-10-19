@@ -1,0 +1,236 @@
+<div class="container py-4 py-md-5">
+  <!-- Shop Header & Quick Category Pills -->
+  <div class="mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb small text-muted mb-1">
+            <li class="breadcrumb-item"><a href="/" class="text-muted text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item active text-dark" aria-current="page">Catalog</li>
+          </ol>
+        </nav>
+        <h2 class="fw-bold mb-0 text-dark"><%= title %></h2>
+      </div>
+      <div class="text-muted small">
+        Showing <strong><%= productCount %></strong> design<%= productCount === 1 ? '' : 's' %>
+      </div>
+    </div>
+
+    <!-- Quick Category Horizontal Pills Bar -->
+    <div class="d-flex gap-2 overflow-auto pb-2 scrollbar-none" style="white-space: nowrap;">
+      <a href="/shop<%= q ? '?q=' + q : '' %>" class="btn btn-sm <%= !activeCategory ? 'btn-dark' : 'btn-light border' %> rounded-pill px-3">
+        All Pieces
+      </a>
+      <% categories.forEach(cat => { %>
+        <a href="/shop?category=<%= cat.slug %><%= q ? '&q=' + q : '' %>"
+           class="btn btn-sm <%= activeCategory === cat.slug ? 'btn-dark' : 'btn-light border' %> rounded-pill px-3">
+          <%= cat.name %> (<%= categoryCounts[cat.slug] || 0 %>)
+        </a>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Desktop Filter Sidebar -->
+    <div class="col-lg-3 d-none d-lg-block">
+      <div class="card border-0 shadow-sm sticky-top" style="top: 85px;">
+        <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-sliders me-1"></i> Refine Catalog</h6>
+          <% if (activeCategory || activeSize || minPrice || maxPrice || inStock) { %>
+            <a href="/shop<%= q ? '?q=' + q : '' %>" class="small text-danger text-decoration-none">Reset</a>
+          <% } %>
+        </div>
+        <div class="card-body">
+          <form method="GET" action="/shop" id="filterForm">
+            <% if (q) { %><input type="hidden" name="q" value="<%= q %>"><% } %>
+
+            <!-- Category Section -->
+            <div class="mb-4">
+              <label class="form-label fw-bold small text-uppercase tracking-wider text-muted mb-2">Category</label>
+              <div class="d-flex flex-column gap-1">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="category" value="" id="d-cat-all"
+                         onchange="this.form.submit()" <%= !activeCategory ? 'checked' : '' %>>
+                  <label class="form-check-label small" for="d-cat-all">All Categories</label>
+                </div>
+                <% categories.forEach(cat => { %>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="category" value="<%= cat.slug %>" id="d-cat-<%= cat.slug %>"
+                           onchange="this.form.submit()" <%= activeCategory === cat.slug ? 'checked' : '' %>>
+                    <label class="form-check-label small" for="d-cat-<%= cat.slug %>">
+                      <%= cat.name %> <span class="text-muted">(<%= categoryCounts[cat.slug] || 0 %>)</span>
+                    </label>
+                  </div>
+                <% }) %>
+              </div>
+            </div>
+
+            <!-- Size Section -->
+            <div class="mb-4">
+              <label class="form-label fw-bold small text-uppercase tracking-wider text-muted mb-2">Size</label>
+              <div class="d-flex flex-wrap gap-1">
+                <% allSizes.forEach(s => { %>
+                  <div class="size-pill-radio">
+                    <input type="radio" name="size" value="<%= s %>" id="d-size-<%= s %>"
+                           onchange="this.form.submit()" <%= activeSize === s ? 'checked' : '' %>>
+                    <label class="size-pill-label" for="d-size-<%= s %>" style="min-width: 38px; height: 34px; font-size: 0.82rem;">
+                      <%= s %>
+                    </label>
+                  </div>
+                <% }) %>
+              </div>
+              <% if (activeSize) { %>
+                <a href="?<%= activeCategory ? 'category=' + activeCategory : '' %>" class="small text-muted d-inline-block mt-2">Clear size</a>
+              <% } %>
+            </div>
+
+            <!-- Price Range -->
+            <div class="mb-4">
+              <label class="form-label fw-bold small text-uppercase tracking-wider text-muted mb-2">Price (₹)</label>
+              <div class="d-flex gap-2 align-items-center">
+                <input type="number" name="minPrice" value="<%= minPrice %>" class="form-control form-control-sm" placeholder="Min">
+                <span class="text-muted">-</span>
+                <input type="number" name="maxPrice" value="<%= maxPrice %>" class="form-control form-control-sm" placeholder="Max">
+              </div>
+              <button type="submit" class="btn btn-sm btn-dark mt-2 w-100">Apply Filter</button>
+            </div>
+
+            <!-- In Stock -->
+            <div class="mb-2">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="inStock" value="true" id="d-inStock"
+                       onchange="this.form.submit()" <%= inStock ? 'checked' : '' %>>
+                <label class="form-check-label small fw-semibold" for="d-inStock">In Stock Only</label>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Column -->
+    <div class="col-12 col-lg-9">
+      <!-- Sorting & Active Filters Bar -->
+      <div class="card border-0 shadow-sm p-3 mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <!-- Mobile Offcanvas Trigger -->
+            <button class="btn btn-sm btn-dark d-lg-none rounded-pill px-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileFilterOffcanvas">
+              <i class="bi bi-funnel me-1"></i> Filters
+              <% if (activeCategory || activeSize || minPrice || maxPrice || inStock) { %>
+                <span class="badge bg-gold-subtle text-gold rounded-circle ms-1">•</span>
+              <% } %>
+            </button>
+            <% if (q) { %>
+              <span class="badge bg-light text-dark border">Keyword: "<%= q %>"</span>
+            <% } %>
+          </div>
+
+          <!-- Sort Select -->
+          <form method="GET" action="/shop" class="d-flex align-items-center gap-2 ms-auto">
+            <% if (activeCategory) { %><input type="hidden" name="category" value="<%= activeCategory %>"><% } %>
+            <% if (activeSize) { %><input type="hidden" name="size" value="<%= activeSize %>"><% } %>
+            <% if (minPrice) { %><input type="hidden" name="minPrice" value="<%= minPrice %>"><% } %>
+            <% if (maxPrice) { %><input type="hidden" name="maxPrice" value="<%= maxPrice %>"><% } %>
+            <% if (inStock) { %><input type="hidden" name="inStock" value="true"><% } %>
+            <% if (q) { %><input type="hidden" name="q" value="<%= q %>"><% } %>
+            <label class="small text-muted mb-0 d-none d-sm-inline">Sort by:</label>
+            <select name="sort" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+              <option value="featured" <%= activeSort === 'featured' ? 'selected' : '' %>>Featured</option>
+              <option value="best_selling" <%= activeSort === 'best_selling' ? 'selected' : '' %>>Best Selling</option>
+              <option value="price_asc" <%= activeSort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
+              <option value="price_desc" <%= activeSort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
+              <option value="" <%= !activeSort ? 'selected' : '' %>>Newest First</option>
+            </select>
+          </form>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <% if (products.length === 0) { %>
+        <div class="text-center py-5 bg-white rounded-4 shadow-sm p-4">
+          <i class="bi bi-search text-muted fs-1 d-block mb-3"></i>
+          <h4>No designs match your criteria</h4>
+          <p class="text-muted">Try clearing some filters or searching with different keywords.</p>
+          <a href="/shop" class="btn btn-dark rounded-pill px-4">View All Products</a>
+        </div>
+      <% } else { %>
+        <div class="row g-3 g-md-4">
+          <% products.forEach(p => { %>
+            <div class="col-6 col-md-4">
+              <%- include('../partials/product-card', { p }) %>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Offcanvas Filter Drawer -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileFilterOffcanvas" aria-labelledby="mobileFilterLabel">
+  <div class="offcanvas-header border-bottom">
+    <h5 class="offcanvas-title fw-bold" id="mobileFilterLabel"><i class="bi bi-sliders me-2"></i> Refine Selection</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <form method="GET" action="/shop">
+      <% if (q) { %><input type="hidden" name="q" value="<%= q %>"><% } %>
+
+      <!-- Category Filter -->
+      <div class="mb-4">
+        <label class="form-label fw-bold small text-uppercase text-muted">Category</label>
+        <div class="d-flex flex-column gap-2">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="category" value="" id="m-cat-all" <%= !activeCategory ? 'checked' : '' %>>
+            <label class="form-check-label" for="m-cat-all">All Categories</label>
+          </div>
+          <% categories.forEach(cat => { %>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="category" value="<%= cat.slug %>" id="m-cat-<%= cat.slug %>"
+                     <%= activeCategory === cat.slug ? 'checked' : '' %>>
+              <label class="form-check-label" for="m-cat-<%= cat.slug %>">
+                <%= cat.name %> (<%= categoryCounts[cat.slug] || 0 %>)
+              </label>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- Size Filter -->
+      <div class="mb-4">
+        <label class="form-label fw-bold small text-uppercase text-muted">Size</label>
+        <div class="d-flex flex-wrap gap-2">
+          <% allSizes.forEach(s => { %>
+            <div class="size-pill-radio">
+              <input type="radio" name="size" value="<%= s %>" id="m-size-<%= s %>" <%= activeSize === s ? 'checked' : '' %>>
+              <label class="size-pill-label" for="m-size-<%= s %>"><%= s %></label>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- Price -->
+      <div class="mb-4">
+        <label class="form-label fw-bold small text-uppercase text-muted">Price Range (₹)</label>
+        <div class="d-flex gap-2">
+          <input type="number" name="minPrice" value="<%= minPrice %>" class="form-control form-control-sm" placeholder="Min">
+          <input type="number" name="maxPrice" value="<%= maxPrice %>" class="form-control form-control-sm" placeholder="Max">
+        </div>
+      </div>
+
+      <!-- In Stock -->
+      <div class="mb-4">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" name="inStock" value="true" id="m-inStock" <%= inStock ? 'checked' : '' %>>
+          <label class="form-check-label fw-semibold" for="m-inStock">In Stock Only</label>
+        </div>
+      </div>
+
+      <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-dark btn-lg">Apply Filters</button>
+        <a href="/shop" class="btn btn-outline-secondary">Reset All</a>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,126 @@
+<div class="container-fluid p-0">
+  <!-- Status Filter Pills -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-2 d-flex flex-wrap gap-2 align-items-center">
+      <span class="small fw-bold text-muted px-2">Filter by Status:</span>
+      <a href="/admin/orders" class="btn btn-sm <%= activeStatus === 'all' ? 'btn-dark' : 'btn-light border' %> rounded-pill px-3">
+        All Orders
+      </a>
+      <% ['Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].forEach(s => { %>
+        <a href="/admin/orders?status=<%= s %>" class="btn btn-sm <%= activeStatus === s ? 'btn-dark' : 'btn-light border' %> rounded-pill px-3">
+          <%= s %>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pt-3 pb-2 d-flex justify-content-between align-items-center">
+      <div>
+        <h6 class="fw-bold mb-0 text-dark">Customer Orders (<%= orders.length %>)</h6>
+        <small class="text-muted">Process order states, inspect shipping addresses, and manage dispatch</small>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <% if (orders && orders.length) { %>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-3">Order Details</th>
+                <th>Customer</th>
+                <th>Items Ordered</th>
+                <th>Shipping Destination</th>
+                <th>Grand Total</th>
+                <th>Status & Update</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% orders.forEach(o => { %>
+                <tr>
+                  <!-- Order ID & Date -->
+                  <td class="ps-3">
+                    <div class="fw-bold font-monospace text-primary">#<%= o._id.toString().slice(-6).toUpperCase() %></div>
+                    <small class="text-muted d-block"><%= new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></small>
+                    <small class="text-muted" style="font-size:0.75rem;"><%= new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></small>
+                  </td>
+
+                  <!-- Customer Info -->
+                  <td>
+                    <div class="fw-semibold text-dark"><%= o.user ? o.user.name : 'Registered Shopper' %></div>
+                    <div class="small text-muted"><%= o.user ? o.user.email : 'N/A' %></div>
+                    <div class="small text-muted"><i class="bi bi-telephone"></i> <%= o.shippingAddress ? o.shippingAddress.phone : 'N/A' %></div>
+                  </td>
+
+                  <!-- Items Breakdown -->
+                  <td>
+                    <div class="d-flex flex-column gap-2" style="min-width: 200px;">
+                      <% o.items.forEach(i => { %>
+                        <div class="d-flex align-items-center gap-2">
+                          <img src="<%= i.image || '/images/placeholder.png' %>" class="rounded border" style="width: 36px; height: 36px; object-fit: cover;" alt="Item">
+                          <div class="lh-sm">
+                            <span class="small fw-semibold d-block text-truncate" style="max-width: 180px;"><%= i.name %></span>
+                            <span class="text-muted" style="font-size:0.75rem;">
+                              <%= i.size %> <%= i.color ? '• ' + i.color : '' %> × <%= i.quantity %>
+                            </span>
+                          </div>
+                        </div>
+                      <% }) %>
+                    </div>
+                  </td>
+
+                  <!-- Address -->
+                  <td style="max-width: 220px;">
+                    <% if (o.shippingAddress) { %>
+                      <div class="small text-dark fw-medium"><%= o.shippingAddress.line1 %></div>
+                      <div class="small text-muted"><%= o.shippingAddress.city %>, <%= o.shippingAddress.state %> - <%= o.shippingAddress.pincode %></div>
+                    <% } else { %>
+                      <span class="text-muted small">No address recorded</span>
+                    <% } %>
+                    <span class="badge bg-light text-secondary border mt-1 font-monospace" style="font-size:0.7rem;"><%= o.paymentMethod || 'COD' %></span>
+                  </td>
+
+                  <!-- Total -->
+                  <td>
+                    <div class="fw-bold fs-6 text-dark">₹<%= o.grandTotal.toLocaleString('en-IN') %></div>
+                    <small class="text-muted"><%= o.shippingFee === 0 ? 'Free Shipping' : '₹' + o.shippingFee + ' Shipping' %></small>
+                  </td>
+
+                  <!-- Status & Quick Form -->
+                  <td style="min-width: 180px;">
+                    <% let badgeClass = 'bg-secondary';
+                       if (o.status === 'Placed') badgeClass = 'bg-warning text-dark';
+                       else if (o.status === 'Processing') badgeClass = 'bg-info text-dark';
+                       else if (o.status === 'Shipped') badgeClass = 'bg-primary text-white';
+                       else if (o.status === 'Delivered') badgeClass = 'bg-success text-white';
+                       else if (o.status === 'Cancelled') badgeClass = 'bg-danger text-white';
+                    %>
+                    <div class="mb-2">
+                      <span class="badge <%= badgeClass %> rounded-pill px-3 py-1 fw-semibold"><%= o.status %></span>
+                    </div>
+
+                    <form action="/admin/orders/<%= o._id %>/status" method="POST" class="d-flex gap-1">
+                      <select name="status" class="form-select form-select-sm" style="font-size: 0.8rem;">
+                        <% ['Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].forEach(s => { %>
+                          <option value="<%= s %>" <%= o.status === s ? 'selected' : '' %>><%= s %></option>
+                        <% }) %>
+                      </select>
+                      <button type="submit" class="btn btn-sm btn-dark" title="Save Status">
+                        <i class="bi bi-check-lg"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-box2 fs-1 d-block mb-2 text-secondary"></i>
+          No orders found under "<%= activeStatus %>" status.
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>

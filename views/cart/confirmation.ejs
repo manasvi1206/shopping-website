@@ -1,0 +1,42 @@
+<div class="container py-5 text-center">
+  <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mx-auto" style="max-width: 650px;">
+    <div class="mb-3 text-success">
+      <i class="bi bi-check-circle-fill" style="font-size: 3.5rem;"></i>
+    </div>
+    <span class="badge bg-gold-subtle text-gold text-uppercase tracking-wider mb-2 px-3 py-1 rounded-pill mx-auto">
+      Order Confirmed
+    </span>
+    <h2 class="fw-bold text-dark mb-2">Thank You for Your Order!</h2>
+    <p class="text-muted small mb-4">
+      Order reference: <strong class="font-monospace text-primary">#<%= order._id.toString().slice(-6).toUpperCase() %></strong>
+    </p>
+
+    <div class="card border-0 bg-light p-3 rounded-4 text-start mb-4">
+      <h6 class="fw-bold text-dark mb-3">Order Details</h6>
+      <div class="d-flex flex-column gap-2 mb-3">
+        <% order.items.forEach(item => { %>
+          <div class="d-flex justify-content-between align-items-center small">
+            <div>
+              <span class="fw-semibold text-dark"><%= item.name %></span>
+              <span class="text-muted ms-1">(<%= item.size %> <%= item.color ? '• ' + item.color : '' %> × <%= item.quantity %>)</span>
+            </div>
+            <span class="fw-bold text-dark">₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></span>
+          </div>
+        <% }) %>
+      </div>
+
+      <div class="border-top pt-2 d-flex justify-content-between align-items-center">
+        <span class="fw-bold text-dark">Grand Total</span>
+        <span class="fw-bold fs-5 text-dark">₹<%= order.grandTotal.toLocaleString('en-IN') %></span>
+      </div>
+      <div class="mt-2 text-muted small">
+        Payment Mode: <strong class="text-dark"><%= order.paymentMethod || 'Cash on Delivery (COD)' %></strong>
+      </div>
+    </div>
+
+    <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+      <a href="/orders/my-orders" class="btn btn-outline-dark rounded-pill px-4">View Order History</a>
+      <a href="/shop" class="btn btn-primary-gold rounded-pill px-4">Continue Shopping</a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,100 @@
+<!-- Announcement Bar -->
+<div class="bg-dark text-white py-1 px-3 text-center small" style="font-size: 0.78rem; letter-spacing: 0.5px;">
+  <span>✨ Complimentary Express Shipping on all orders above ₹1,999 • Code: <strong class="text-gold">FIRSTAURELLE</strong></span>
+</div>
+
+<!-- Main Sticky Header -->
+<nav class="navbar navbar-expand-lg main-navbar sticky-top py-2">
+  <div class="container">
+    <!-- Brand Logo -->
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <span class="admin-logo-mark" style="width: 32px; height: 32px; font-size: 1.05rem;">A</span>
+      <span>Aurelle</span>
+    </a>
+
+    <!-- Mobile Toggler -->
+    <div class="d-flex align-items-center gap-2 d-lg-none">
+      <a class="nav-link position-relative p-2" href="/cart">
+        <i class="bi bi-bag fs-5"></i>
+        <% if (cartCount > 0) { %>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size: 0.65rem;">
+            <%= cartCount %>
+          </span>
+        <% } %>
+      </a>
+      <button class="navbar-toggler border-0 shadow-none p-1" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <i class="bi bi-list fs-3"></i>
+      </button>
+    </div>
+
+    <!-- Navigation Menu Items -->
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ps-lg-3">
+        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="/shop">Shop All</a></li>
+        <li class="nav-item"><a class="nav-link" href="/shop?category=dresses">Dresses</a></li>
+        <li class="nav-item"><a class="nav-link" href="/shop?category=co-ords">Co-ords</a></li>
+        <li class="nav-item"><a class="nav-link" href="/shop?category=jumpsuits">Jumpsuits</a></li>
+        <li class="nav-item"><a class="nav-link" href="/shop?category=hustlease">Workwear</a></li>
+      </ul>
+
+      <!-- Live Search Form -->
+      <form class="position-relative header-search me-3 my-2 my-lg-0" action="/shop" method="GET">
+        <i class="bi bi-search header-search-icon"></i>
+        <input class="form-control form-control-sm ps-4" type="search" name="q" placeholder="Search dresses, tops..." autocomplete="off">
+      </form>
+
+      <!-- Account & Cart Actions -->
+      <ul class="navbar-nav align-items-lg-center gap-2">
+        <% if (currentUser) { %>
+          <!-- User Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle fs-5 me-1"></i>
+              <span><%= currentUser.name.split(' ')[0] %></span>
+              <% if (currentUser.role === 'admin') { %>
+                <span class="badge bg-gold-subtle text-gold ms-1" style="font-size:0.65rem;">ADMIN</span>
+              <% } %>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+              <li class="dropdown-header">Signed in as <strong><%= currentUser.name %></strong></li>
+              <% if (currentUser.role === 'admin') { %>
+                <li>
+                  <a class="dropdown-item fw-semibold text-primary" href="/admin">
+                    <i class="bi bi-speedometer2 me-2"></i> Admin Portal
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+              <% } %>
+              <li><a class="dropdown-item" href="/orders/my-orders"><i class="bi bi-box2 me-2"></i> My Orders</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
+            </ul>
+          </li>
+        <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/auth/login">
+              <i class="bi bi-person me-1"></i> Sign In
+            </a>
+          </li>
+        <% } %>
+
+        <!-- Admin Shortcut Pill for Easy Review -->
+        <li class="nav-item d-none d-xl-block">
+          <a class="btn btn-sm btn-outline-dark rounded-pill px-3 d-inline-flex align-items-center gap-1" href="/admin" title="Open Admin Control Panel">
+            <i class="bi bi-shield-lock"></i> Admin Site
+          </a>
+        </li>
+
+        <!-- Cart Pill -->
+        <li class="nav-item">
+          <a class="cart-pill text-decoration-none" href="/cart">
+            <i class="bi bi-bag"></i>
+            <span class="d-none d-sm-inline">Cart</span>
+            <span class="badge bg-dark rounded-pill" id="cartCountBadge"><%= cartCount %></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
